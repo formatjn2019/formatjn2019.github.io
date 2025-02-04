@@ -9,8 +9,8 @@ import git
 MATCH_FILE_RULE = re.compile(r"^(?!README).*\.md$")
 # 文件夹匹配规则
 MATCH_DIR_RULE = re.compile(r"[^._].*")
-# 输入路径 python文件相对于docs的路径
-INPUT_PATH = r"./docs"
+# 输入路径 python文件相对于markdown的路径
+INPUT_PATH = r"markdown"
 # README.md
 TABLE_FLAG = "  "
 
@@ -24,6 +24,8 @@ UPDATE_FILE_FLAG = True
 # 站点配置
 # 博客名
 BLOG_TITLE = "formatjn2019的博客"
+BASE_PATH = "/"
+
 # 博客副标题
 BLOG_SUBTITLE = "博客副标题"
 # 博客描述
@@ -196,6 +198,7 @@ module.exports = {
 def create_configs(root_path, blog_title, auto_sidebar=False):
     # key,dic
     config_dic = {}
+    print(BASE_PATH)
     # 模块导出设置
     module_exports = {
         "title": blog_title,
@@ -211,7 +214,7 @@ def create_configs(root_path, blog_title, auto_sidebar=False):
                 '@vuepress/blog',
             ],
         ],
-        "base": '/',
+        "base": BASE_PATH,
         "themeConfig": {
             # 导航栏图标
             "logo": "/logo.png",
@@ -351,7 +354,8 @@ if __name__ == '__main__':
     # 相对路径转绝对路径
     INPUT_PATH = os.path.abspath(os.path.join(
         os.path.dirname(sys.argv[0]), INPUT_PATH))
-
+    if len(sys.argv)>1:
+        BASE_PATH = sys.argv[1]
     create_readme(INPUT_PATH, BLOG_TITLE)
     create_configs(INPUT_PATH, BLOG_TITLE)
     create_sidebar_arr(INPUT_PATH)
