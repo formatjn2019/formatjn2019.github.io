@@ -342,10 +342,13 @@ def update_index(path: str):
 
     file_dic = recent_update_file(RECENT_FILE, ADD_FILE_FLAG, UPDATE_FILE_FLAG)
     for key, title in {"add": "\n#### 近期新增\n", "update": "\n#### 近期修改\n"}.items():
-        context += title
+        append_context = title
         for file in file_dic[key]:
             link = "[{}]({})\n\n".format(file[file.rfind("/") + 1:-3], file[file.find("/"):])
-            context += link
+            append_context += link
+        # 如无近期修改，放弃更新
+        if append_context != title:
+            context += append_context
     with open(INPUT_PATH + os.sep + "README.md", "w", encoding="utf8") as f:
         f.write(context)
 
@@ -354,7 +357,7 @@ if __name__ == '__main__':
     # 相对路径转绝对路径
     INPUT_PATH = os.path.abspath(os.path.join(
         os.path.dirname(sys.argv[0]), INPUT_PATH))
-    if len(sys.argv)>1:
+    if len(sys.argv) > 1:
         BASE_PATH = sys.argv[1]
     create_readme(INPUT_PATH, BLOG_TITLE)
     create_configs(INPUT_PATH, BLOG_TITLE)
