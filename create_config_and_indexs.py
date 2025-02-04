@@ -24,6 +24,7 @@ UPDATE_FILE_FLAG = True
 # 站点配置
 # 博客名
 BLOG_TITLE = "formatjn2019的博客"
+
 BASE_PATH = "/"
 
 # 博客副标题
@@ -198,7 +199,6 @@ module.exports = {
 def create_configs(root_path, blog_title, auto_sidebar=False):
     # key,dic
     config_dic = {}
-    print(BASE_PATH)
     # 模块导出设置
     module_exports = {
         "title": blog_title,
@@ -355,8 +355,7 @@ def update_index(path: str):
 
 if __name__ == '__main__':
     # 相对路径转绝对路径
-    INPUT_PATH = os.path.abspath(os.path.join(
-        os.path.dirname(sys.argv[0]), INPUT_PATH))
+    INPUT_PATH = os.path.abspath(os.path.join(os.getcwd(), INPUT_PATH))
     if len(sys.argv) > 1:
         BASE_PATH = sys.argv[1]
     create_readme(INPUT_PATH, BLOG_TITLE)
