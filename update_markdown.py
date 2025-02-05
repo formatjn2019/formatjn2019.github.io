@@ -1,7 +1,7 @@
 import os
 import re
 
-MATCH_RULE = re.compile("^(.*)-\d(.md)$")
+MATCH_RULE = re.compile(r"^(.*)-\d(.md)$")
 
 
 def scane_duplicate(folder_path):

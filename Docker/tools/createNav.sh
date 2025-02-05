@@ -3,4 +3,4 @@
 find . -name "README.md" -delete
 git checkout .
 git pull
-python create_config_and_indexs.py $1
+python create_config_and_indexs.py "$@"

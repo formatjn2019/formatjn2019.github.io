@@ -32,8 +32,9 @@ BLOG_SUBTITLE = "博客副标题"
 # 博客描述
 BLOG_DESCRIPTION = "博客"
 # Github连接
-GITHUB_LINK = "https://github.com/formatjn2019/myblog"
+GITHUB_LINK = "https://github.com/formatjn2019/formatjn2019.github.io"
 
+HOSTNAME = ""
 # 邮箱
 MAIL = "mailto:formatjn2019@gmail.com"
 # 备案相关
@@ -222,7 +223,7 @@ def create_configs(root_path, blog_title, auto_sidebar=False):
             "nav": [  # 导航栏配置
             ],
             "sitemap": {
-                "hostname": "http://blog.zuixue.site"
+                "hostname": HOSTNAME
             },
             "footer": {
                 "contact": [
@@ -253,6 +254,11 @@ def create_configs(root_path, blog_title, auto_sidebar=False):
             "sidebarDepth": 2,  # 侧边栏显示2级
         }
     }
+
+    # 若IPC备案号为空，隐藏备案号
+    if IPC == "":
+        module_exports["themeConfig"]["footer"]["copyright"] = [{"text": '欢迎转载，转载请注明出处'}]
+
     config_dic["module.exports"] = module_exports
     if not auto_sidebar:
         config_dic["module.exports"]["themeConfig"]["sidebar"] = create_sidebar_arr(root_path)
@@ -358,6 +364,11 @@ if __name__ == '__main__':
     INPUT_PATH = os.path.abspath(os.path.join(os.getcwd(), INPUT_PATH))
     if len(sys.argv) > 1:
         BASE_PATH = sys.argv[1]
+    # ipc备案内容在github中不显示
+    if len(sys.argv) > 2 and sys.argv[2].endwith("github.io"):
+        IPC = ""
+        HOSTNAME = sys.argv[2]
+
     create_readme(INPUT_PATH, BLOG_TITLE)
     create_configs(INPUT_PATH, BLOG_TITLE)
     create_sidebar_arr(INPUT_PATH)
