@@ -365,9 +365,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         BASE_PATH = sys.argv[1]
     # ipc备案内容在github中不显示
-    if len(sys.argv) > 2 and sys.argv[2].endwith("github.io"):
-        IPC = ""
+    if len(sys.argv) > 2:
         HOSTNAME = sys.argv[2]
+        if sys.argv[2].endswith("github.io"):
+            IPC = ""
 
     create_readme(INPUT_PATH, BLOG_TITLE)
     create_configs(INPUT_PATH, BLOG_TITLE)
