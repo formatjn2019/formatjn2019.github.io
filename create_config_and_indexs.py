@@ -67,6 +67,8 @@ def create_readme(root_path, head_name, web_path='/', replace_index=False):
 
     # 保留标题行之前的自定义内容，标题及之后的部分由脚本重建
     custom = ""
+    existing = ""
+    idx = -1
     if os.path.exists(os.path.join(root_path, "README.md")):
         with open(os.path.join(root_path, "README.md"), "r", encoding="utf-8") as f:
             existing = f.read()
@@ -103,6 +105,12 @@ def create_readme(root_path, head_name, web_path='/', replace_index=False):
             line = TABLE_FLAG + modle.format(file_name[:-3], url)
             result_lines.append(line)
             current_content += line
+
+    # 保留原标题行之后的近期更新段落（由宿主机 git 历史生成）
+    if idx >= 0:
+        recent_pos = existing.find('\n#### 近期', idx)
+        if recent_pos > 0:
+            current_content += existing[recent_pos:]
 
     with open(root_path + os.sep + "README.md", "w", encoding="utf-8") as f:
         f.write(current_content)
@@ -343,14 +351,17 @@ RECENT_SECTION_PATTERN = re.compile(
 
 # 添加近期更新文件
 def update_index(path: str):
+    file_dic = recent_update_file(RECENT_FILE, ADD_FILE_FLAG, UPDATE_FILE_FLAG)
+    has_updates = any(file_dic[k] for k in file_dic)
+    if not has_updates:
+        return
+
     context = ""
     with open(path + os.sep + "README.md", "r", encoding="utf8") as f:
         context += f.read()
 
-    # 先清除已有的近期更新段落，避免重复追加
     context = RECENT_SECTION_PATTERN.sub("", context).rstrip() + "\n"
 
-    file_dic = recent_update_file(RECENT_FILE, ADD_FILE_FLAG, UPDATE_FILE_FLAG)
     for key, title in {"add": "#### 近期新增\n", "update": "#### 近期修改\n"}.items():
         append_context = title
         for file in file_dic[key]:
