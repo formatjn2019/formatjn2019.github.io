@@ -1,6 +1,13 @@
 # Stage 1: generate navigation, config, and README indexes
 FROM python:3.11-slim AS config-builder
 
+ARG BLOG_IPC
+ARG BLOG_BEIAN
+ARG BLOG_BEIAN_NUM
+ARG BLOG_BEIAN_LINK
+ENV BLOG_IPC=${BLOG_IPC} BLOG_BEIAN=${BLOG_BEIAN} \
+    BLOG_BEIAN_NUM=${BLOG_BEIAN_NUM} BLOG_BEIAN_LINK=${BLOG_BEIAN_LINK}
+
 RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/* \
     && pip install -i https://mirrors.aliyun.com/pypi/simple gitpython
@@ -23,6 +30,8 @@ COPY package.json ./
 RUN npm install vuepress @vuepress/theme-blog lodash.template@4.5.0
 
 COPY --from=config-builder /blog/markdown/ ./docs/
+
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
 RUN npm run docs:build
 
