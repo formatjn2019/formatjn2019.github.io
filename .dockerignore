@@ -1,7 +1,5 @@
-.git
 .gitignore
 .idea
 README.md
 docs/
-.git
 node_modules/

@@ -10,11 +10,13 @@ ENV BLOG_IPC=${BLOG_IPC} BLOG_BEIAN=${BLOG_BEIAN} \
 
 RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install -i https://mirrors.aliyun.com/pypi/simple gitpython
+    && pip install -i https://mirrors.aliyun.com/pypi/simple gitpython \
+    && git config --global --add safe.directory /blog
 
 WORKDIR /blog
 COPY create_config_and_indexs.py update_markdown.py ./
 COPY markdown/ ./markdown/
+COPY .git/ ./.git/
 
 RUN python update_markdown.py \
     && python create_config_and_indexs.py
