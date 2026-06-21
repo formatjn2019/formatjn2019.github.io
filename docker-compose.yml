@@ -1,0 +1,9 @@
+services:
+  blog:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    container_name: blog
+    ports:
+      - "8080:80"
+    restart: unless-stopped
