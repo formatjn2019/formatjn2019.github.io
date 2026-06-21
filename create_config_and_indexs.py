@@ -37,11 +37,11 @@ GITHUB_LINK = "https://github.com/formatjn2019/formatjn2019.github.io"
 HOSTNAME = ""
 # 邮箱
 MAIL = "mailto:formatjn2019@gmail.com"
-# 备案相关
-IPC = "豫ICP备2021036468号"
-BEIAN = '豫公网安备 41022102001056号'
-BEIAN_NUM = "41022102001056"
-LINK = 'https://beian.miit.gov.cn/'
+# 备案相关（通过环境变量注入，不注入不显示）
+IPC = os.environ.get("BLOG_IPC", "")
+BEIAN = os.environ.get("BLOG_BEIAN", "")
+BEIAN_NUM = os.environ.get("BLOG_BEIAN_NUM", "")
+LINK = os.environ.get("BLOG_BEIAN_LINK", "https://beian.miit.gov.cn/")
 
 
 # 文件夹文件数量统计
@@ -364,11 +364,8 @@ if __name__ == '__main__':
     INPUT_PATH = os.path.abspath(os.path.join(os.getcwd(), INPUT_PATH))
     if len(sys.argv) > 1:
         BASE_PATH = sys.argv[1]
-    # ipc备案内容在github中不显示
     if len(sys.argv) > 2:
         HOSTNAME = sys.argv[2]
-        if sys.argv[2].endswith("github.io"):
-            IPC = ""
 
     create_readme(INPUT_PATH, BLOG_TITLE)
     create_configs(INPUT_PATH, BLOG_TITLE)
