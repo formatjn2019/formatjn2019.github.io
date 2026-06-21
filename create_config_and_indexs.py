@@ -62,16 +62,21 @@ def count_files(dir_path):
 
 # 根路径 首文件夹名称
 def create_readme(root_path, head_name, web_path='/', replace_index=False):
-    current_content = ""
-    # 读取原本 READEME 内容
+    modle = "+ " + "[{}]({})\n"
+    head = modle.format(head_name, web_path)
+
+    # 保留标题行之前的自定义内容，标题及之后的部分由脚本重建
+    custom = ""
     if os.path.exists(os.path.join(root_path, "README.md")):
-        with open(os.path.join(root_path, "README.md"), "r", encoding="utf-8") as file:
-            current_content = file.read() + "\n"
-    else:
-        # 不存在README文件时自动开始替换标志
-        replace_index = True
+        with open(os.path.join(root_path, "README.md"), "r", encoding="utf-8") as f:
+            existing = f.read()
+        idx = existing.find(head)
+        if idx >= 0:
+            custom = existing[:idx]
+        else:
+            custom = existing.rstrip() + "\n"
+
     files = os.listdir(root_path)
-    # 文件名倒序排列
     if web_path == '/':
         dir_files = {name: count_files(root_path + os.sep + name)
                      for name in os.listdir(root_path)}
@@ -80,25 +85,18 @@ def create_readme(root_path, head_name, web_path='/', replace_index=False):
     else:
         files.sort()
     result_lines = []
-    # 超链接格式模板
-    modle = "+ " + "[{}]({})\n"
-    head = modle.format(head_name, web_path)
-    current_content += head
+    current_content = custom + head
     result_lines.append(head)
     for file_name in files:
-        # 文件路径
         file_path = root_path + os.sep + file_name
-        # 符合扫描条件的文件夹
         if os.path.isdir(file_path) and MATCH_DIR_RULE.match(file_name):
             print("扫描到文件夹:" + file_path)
-            # 将子目录的条目添加到当前目录
             sub_lines = create_readme(
                 file_path, file_name, web_path=web_path + file_name + '/', replace_index=True)
             for line in sub_lines:
                 line = TABLE_FLAG + line
                 current_content += line
                 result_lines.append(line)
-        # 符合扫描条件的文件,格式化内容
         elif os.path.isfile(file_path) and MATCH_FILE_RULE.match(file_name):
             print("扫描到文件" + file_path)
             url = web_path + file_name[:-3]
@@ -106,11 +104,8 @@ def create_readme(root_path, head_name, web_path='/', replace_index=False):
             result_lines.append(line)
             current_content += line
 
-    # 写入当前目录README.md
-    # 如README文件存在且替换标志为False 则不进行首页内容替换
-    if not web_path == '/' or replace_index:
-        with open(root_path + os.sep + "README.md", "w", encoding="utf-8") as file:
-            file.write(current_content)
+    with open(root_path + os.sep + "README.md", "w", encoding="utf-8") as f:
+        f.write(current_content)
     return result_lines
 
 
@@ -319,9 +314,12 @@ def _create_content(data: any):
 
 # 近期更新
 def recent_update_file(limit: int, add_flag: bool, update_flag: bool) -> dict:
-    repo = git.Repo(".")
-    all_commit = list(repo.iter_commits(all=True))
     result = {"add": [], "update": []}
+    try:
+        repo = git.Repo(".")
+    except git.exc.InvalidGitRepositoryError:
+        return result
+    all_commit = list(repo.iter_commits(all=True))
     for commit in all_commit:
         # 获取最后一次提交涉及的文件列表
         add_list, update_list = [], []
@@ -340,22 +338,27 @@ def recent_update_file(limit: int, add_flag: bool, update_flag: bool) -> dict:
     return result
 
 
+RECENT_SECTION_PATTERN = re.compile(
+    r"\n*#### 近期(新增|修改)\n([^\n]*\n\n)*", re.MULTILINE)
+
 # 添加近期更新文件
 def update_index(path: str):
     context = ""
     with open(path + os.sep + "README.md", "r", encoding="utf8") as f:
         context += f.read()
 
+    # 先清除已有的近期更新段落，避免重复追加
+    context = RECENT_SECTION_PATTERN.sub("", context).rstrip() + "\n"
+
     file_dic = recent_update_file(RECENT_FILE, ADD_FILE_FLAG, UPDATE_FILE_FLAG)
-    for key, title in {"add": "\n#### 近期新增\n", "update": "\n#### 近期修改\n"}.items():
+    for key, title in {"add": "#### 近期新增\n", "update": "#### 近期修改\n"}.items():
         append_context = title
         for file in file_dic[key]:
             link = "[{}]({})\n\n".format(file[file.rfind("/") + 1:-3], file[file.find("/"):])
             append_context += link
-        # 如无近期修改，放弃更新
         if append_context != title:
-            context += append_context
-    with open(INPUT_PATH + os.sep + "README.md", "w", encoding="utf8") as f:
+            context += "\n" + append_context
+    with open(path + os.sep + "README.md", "w", encoding="utf8") as f:
         f.write(context)
 
 
