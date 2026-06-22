@@ -87,26 +87,31 @@ def create_readme(root_path, head_name, web_path='/', replace_index=False):
     else:
         files.sort()
     result_lines = []
-    current_content = custom + head
-    result_lines.append(head)
+    is_root = web_path == '/'
+    current_content = custom
+    # 首页不生成目录，子目录正常生成
+    if not is_root:
+        current_content += head
+        result_lines.append(head)
     for file_name in files:
         file_path = root_path + os.sep + file_name
         if os.path.isdir(file_path) and MATCH_DIR_RULE.match(file_name):
             print("扫描到文件夹:" + file_path)
             sub_lines = create_readme(
                 file_path, file_name, web_path=web_path + file_name + '/', replace_index=True)
-            for line in sub_lines:
-                line = TABLE_FLAG + line
-                current_content += line
-                result_lines.append(line)
-        elif os.path.isfile(file_path) and MATCH_FILE_RULE.match(file_name):
+            if not is_root:
+                for line in sub_lines:
+                    line = TABLE_FLAG + line
+                    current_content += line
+                    result_lines.append(line)
+        elif not is_root and os.path.isfile(file_path) and MATCH_FILE_RULE.match(file_name):
             print("扫描到文件" + file_path)
             url = web_path + file_name[:-3]
             line = TABLE_FLAG + modle.format(file_name[:-3], url)
             result_lines.append(line)
             current_content += line
 
-    # 保留原标题行之后的近期更新段落（由宿主机 git 历史生成）
+    # 保留原标题行之后的近期更新段落
     if idx >= 0:
         recent_pos = existing.find('\n#### 近期', idx)
         if recent_pos > 0:
