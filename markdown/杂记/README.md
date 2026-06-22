@@ -1,0 +1,6 @@
++ [杂记](/杂记/)
+  + [UNRAID](/杂记/UNRAID/)
+    + [使用unraid创建ISCSI共享](/杂记/UNRAID/使用unraid创建ISCSI共享)
+  + [其它](/杂记/其它/)
+    + [自己搭建bitwarden服务器](/杂记/其它/自己搭建bitwarden服务器)
+  + [多系统共享磁盘的坑](/杂记/多系统共享磁盘的坑)
